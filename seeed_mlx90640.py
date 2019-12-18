@@ -4,6 +4,10 @@ import math
 class grove_mxl90640:
 	
 	def __init__(self,address=0x33,Bus = 1):    #default 0x33
+		try:
+			self.bus = SMBus(Bus)
+		except OSError:
+			print("Error:Please check if the I2C device insert in I2C of Base Hat")
 		self.bus = SMBus(Bus)
 		self.addr = address
 		self.gain = self.getGain()
@@ -28,7 +32,11 @@ class grove_mxl90640:
 		with SMBus(Bus) as bus:
 			write = i2c_msg.write(self.addr,[reg>>8,reg&0xFF])
 			read = i2c_msg.read(self.addr,2)
-			bus.i2c_rdwr(write, read)
+			try:
+				bus.i2c_rdwr(write, read)
+			except OSError:
+				print("Error:Please check if the I2C device insert in I2C of Base Hat")
+				exit(1)
 		result = list(read)
 		return (result[0]<<8)+result[1]
 	def root4(self,num):
