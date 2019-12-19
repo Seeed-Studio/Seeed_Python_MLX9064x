@@ -1,14 +1,10 @@
-from smbus2 import SMBus, i2c_msg
+from grove.i2c import Bus
 import math
-
+# This relies on the driver written by RevKarl and can be found at:
+# https://github.com/RevKarl/MLX90640-python
 class grove_mxl90640:
-	
-	def __init__(self,address=0x33,Bus = 1):    #default 0x33
-		try:
-			self.bus = SMBus(Bus)
-		except OSError:
-			print("Error:Please check if the I2C device insert in I2C of Base Hat")
-		self.bus = SMBus(Bus)
+	def __init__(self,address=0x33):	#default 0x33
+		self.bus = Bus()
 		self.addr = address
 		self.gain = self.getGain()
 		self.VDD0 = 3.3
@@ -28,17 +24,14 @@ class grove_mxl90640:
 		self.alphaCorrR2 = 1
 		self.alphaCorrR3 = 1 + self.KsTo2*(self.CT3-0)
 		self.alphaCorrR4 = self.alphaCorrR3*(1+self.KsTo3*(self.CT4-self.CT3))
-	def getReg(self,reg,Bus = 1):
-		with SMBus(Bus) as bus:
-			write = i2c_msg.write(self.addr,[reg>>8,reg&0xFF])
-			read = i2c_msg.read(self.addr,2)
-			try:
-				bus.i2c_rdwr(write, read)
-			except OSError:
-				print("Error:Please check if the I2C device insert in I2C of Base Hat")
-				exit(1)
-		result = list(read)
-		return (result[0]<<8)+result[1]
+	def getReg(self,reg):
+		write = self.bus.msg.write(self.addr,[reg>>8,reg&0xFF])
+		read = self.bus.msg.read(self.addr,2)
+		try:
+			self.bus.i2c_rdwr(write, read)
+		except OSError:
+			print("Error:Please check if the I2C device insert in I2C of Base Hat")
+			exit(1)
 	def root4(self,num):
 		return math.sqrt(math.sqrt(num))
 	def getTGC(self):
@@ -52,7 +45,6 @@ class grove_mxl90640:
 		if Kvdd > 127:
 			Kvdd = Kvdd -256
 		Kvdd = Kvdd*32
-		
 		Vdd25 = self.getReg(0x2433) & 0x00FF
 		Vdd25 = (Vdd25-256)*32 - 8192
 		
