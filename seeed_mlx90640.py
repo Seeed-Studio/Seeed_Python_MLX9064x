@@ -50,12 +50,10 @@ class grove_mxl90640:
 			TGC = TGC - 256
 		return TGC
 	def SetRefreshRate(self,resolution):
-		resolution = resolution << 7
+		resolution = (resolution&0x07) << 7
 		controlRegister1 = self.GetReg(0x800D)
 		value = (controlRegister1 & 0xFC7F) | resolution
 		self.SetReg(0x800D,value)
-		# controlRegister1 = self.GetReg(0x800D)
-		# print('%#x'%controlRegister1)
 	def GetVdd(self):
 		Kvdd = (self.GetReg(0x2433) & 0xFF00)/256
 		if Kvdd > 127:
