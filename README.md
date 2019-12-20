@@ -11,6 +11,7 @@ This is easy to install with the following command.
  ```
 curl -sL https://github.com/Seeed-Studio/grove.py/raw/master/install.sh | sudo bash -s -
  ```
+ 
 ## Installing from PyPI
 
 On supported GNU/Linux systems like the Raspberry Pi, you can install the driver locally from PyPI. To install for current user:
@@ -49,11 +50,22 @@ pi@raspberrypi:~/Seeed_Python_SGP30 $ i2cdetect -y -r 1
 
 ```
 
-Next, initialize the sersor object:
+## initialize the sersor object:
+
+Initialize the sersor object and config the sersor refresh rate.
 
 ```python
 import seeed_mlx90640
-sensor = seeed_mlx90640.grove_mxl90640() 
+sensor = seeed_mlx90640.grove_mxl90640()
+sensor.SetRefreshRate(0x04)
+# 0x00 0.5HZ
+# 0x01 1HZ
+# 0x02 2HZ
+# 0x03 4HZ(recommend for raspberry)
+# 0x04 8HZ
+# 0x05 16HZ
+# 0x06 32HZ
+# 0x07 64HZ
 ```
 
 ## Reading from the Sensor
@@ -68,6 +80,21 @@ del Pixel[0:33]
 print(len(Pixel))  #24x32 pixel
 print(Pixel)
 ```
+
+If you're just using the MLX90640 on iic.You can add content that below to the config.txt.
+
+```bash
+dtparam=i2c_arm=on,i2c_arm_baudrate=1000000
+```  
+
+This will give you a framerate of - at most - 32FPS.
+
+and If you have other iic device ,maybe you can add content that below to the config.txt to get the fastest rate recommended for compatibility
+
+```bash
+dtparam=i2c_arm=on,i2c_arm_baudrate=400000
+```  
+This will give you a framerate of - at most - 8FPS.
 
 ## Contributing
 

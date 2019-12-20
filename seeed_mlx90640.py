@@ -6,49 +6,65 @@ class grove_mxl90640:
 	def __init__(self,address=0x33):	#default 0x33
 		self.bus = Bus()
 		self.addr = address
-		self.gain = self.getGain()
+		self.gain = self.GetGain()
 		self.VDD0 = 3.3
-		self.DV = self.getVDD()
+		self.DV = self.GetVdd()
 		self.VDD = self.DV+self.VDD0
 		self.Ta0 = 25
-		self.Ta = self.getTa()
+		self.Ta = self.GetTa()
 		self.emissivity = 1
-		self.TGC = self.getTGC()
+		self.TGC = self.GetTgc()
 		self.chessNotIL = 1
-		self.KsTa = self.getKsTa()
-		self.KsTo1, self.KsTo2, self.KsTo3, self.KsTo4 = self.getKsTo()
-		self.step, self.CT3, self.CT4 = self.getCorners()
+		self.KsTa = self.GetKsTa()
+		self.KsTo1, self.KsTo2, self.KsTo3, self.KsTo4 = self.GetKsTo()
+		self.step, self.CT3, self.CT4 = self.GetCorners()
 		self.CT1 = 40
 		self.CT2 = 0
 		self.alphaCorrR1 = 1/float(1+ self.KsTo1*(0-(-40)))
 		self.alphaCorrR2 = 1
 		self.alphaCorrR3 = 1 + self.KsTo2*(self.CT3-0)
 		self.alphaCorrR4 = self.alphaCorrR3*(1+self.KsTo3*(self.CT4-self.CT3))
-	def getReg(self,reg):
+		# self.SetRefreshRate(resolution)
+	def GetReg(self,reg):
 		write = self.bus.msg.write(self.addr,[reg>>8,reg&0xFF])
 		read = self.bus.msg.read(self.addr,2)
 		try:
 			self.bus.i2c_rdwr(write, read)
+			result = list(read)
+			return (result[0]<<8)+result[1]
+		except OSError:
+			print("Error:Please check if the I2C device insert in I2C of Base Hat")
+			exit(1)
+	def SetReg(self,reg,value):
+		write = self.bus.msg.write(self.addr,[reg>>8,reg&0xFF,value>>8,value&0xFF])
+		try:
+			self.bus.i2c_rdwr(write)
 		except OSError:
 			print("Error:Please check if the I2C device insert in I2C of Base Hat")
 			exit(1)
 	def root4(self,num):
 		return math.sqrt(math.sqrt(num))
-	def getTGC(self):
-		TGC = self.getReg(0x243C) & 0x00FF
+	def GetTgc(self):
+		TGC = self.GetReg(0x243C) & 0x00FF
 		if TGC > 127:
 			TGC = TGC - 256
 		return TGC
-		
-	def getVDD(self):
-		Kvdd = (self.getReg(0x2433) & 0xFF00)/256
+	def SetRefreshRate(self,resolution):
+		resolution = resolution << 7
+		controlRegister1 = self.GetReg(0x800D)
+		value = (controlRegister1 & 0xFC7F) | resolution
+		self.SetReg(0x800D,value)
+		# controlRegister1 = self.GetReg(0x800D)
+		# print('%#x'%controlRegister1)
+	def GetVdd(self):
+		Kvdd = (self.GetReg(0x2433) & 0xFF00)/256
 		if Kvdd > 127:
 			Kvdd = Kvdd -256
 		Kvdd = Kvdd*32
-		Vdd25 = self.getReg(0x2433) & 0x00FF
+		Vdd25 = self.GetReg(0x2433) & 0x00FF
 		Vdd25 = (Vdd25-256)*32 - 8192
 		
-		RAM = self.getReg(0x072A)
+		RAM = self.GetReg(0x072A)
 		if RAM > 32767:
 			RAM = RAM - 65536
 
@@ -56,40 +72,40 @@ class grove_mxl90640:
 		
 		return DV
 
-	def getTa(self):
-		KVptat = (self.getReg(0x2432) & 0xFC00)/1024
+	def GetTa(self):
+		KVptat = (self.GetReg(0x2432) & 0xFC00)/1024
 		if KVptat > 31:
 			KVptat = KVptat - 62
 		
 		KVptat = KVptat/4096.0
 		
-		KTptat = self.getReg(0x2432) & 0x03FF
+		KTptat = self.GetReg(0x2432) & 0x03FF
 		if KTptat > 511:
 			KTptat = KTptat - 1022
 		
 		KTptat = KTptat/8.0
 		
-		Vptat25 = self.getReg(0x2431)
+		Vptat25 = self.GetReg(0x2431)
 		if Vptat25 > 32767:
 			Vptat25 = Vptat25 - 65536
-		Vptat = self.getReg(0x0720)
+		Vptat = self.GetReg(0x0720)
 		if Vptat > 32767:
 			Vptat = Vptat - 65536
-		Vbe = self.getReg(0x0700)
+		Vbe = self.GetReg(0x0700)
 		if Vbe > 32767:
 			Vbe = Vbe - 65536
-		AlphaptatEE = (self.getReg(0x2410) & 0xF000)/4096
+		AlphaptatEE = (self.GetReg(0x2410) & 0xF000)/4096
 		Alphaptat = (AlphaptatEE/4)+8
 		Vptatart = (Vptat/float(Vptat * Alphaptat + Vbe))*262144
 		
 		Ta = ((Vptatart/float(1+KVptat*self.DV)-Vptat25)/float(KTptat))+self.Ta0
 		return Ta
 
-	def getGain(self):
-		GAIN = self.getReg(0x2430)
+	def GetGain(self):
+		GAIN = self.GetReg(0x2430)
 		if GAIN > 32767:
 			GAIN = GAIN - 65536
-		RAM = self.getReg(0x070A)
+		RAM = self.GetReg(0x070A)
 		if RAM > 32767:
 			RAM = RAM - 65536
 		return GAIN/float(RAM)
@@ -97,23 +113,23 @@ class grove_mxl90640:
 	def pixnum(self,i,j):
 		return (i-1)*32 + j
 
-	def patternChess(self,i,j):
+	def PatternChess(self,i,j):
 		pixnum = self.pixnum(i,j)
 		a = (pixnum-1)/32
 		b = int((pixnum-1)/32)/2
 		return int(a) - int(b)*2
 		
-	def getKsTa(self):
-		KsTaEE = (self.getReg(0x243C) & 0xFF00) >> 256
+	def GetKsTa(self):
+		KsTaEE = (self.GetReg(0x243C) & 0xFF00) >> 256
 		if KsTaEE > 127:
 			KsTaEE = KsTaEE -256
 		
 		KsTa = KsTaEE/8192.0
 		return KsTa
 	
-	def getKsTo(self):
-		EE1 = self.getReg(0x243D)
-		EE2 = self.getReg(0x243E)
+	def GetKsTo(self):
+		EE1 = self.GetReg(0x243D)
+		EE2 = self.GetReg(0x243E)
 		KsTo1 = EE1 & 0x00FF
 		KsTo3 = EE2 & 0x00FF
 		KsTo2 = (EE1 & 0xFF00) >> 8
@@ -128,26 +144,26 @@ class grove_mxl90640:
 		if KsTo4 > 127:
 			KsTo4 = KsTo4 -256
 		
-		KsToScale = (self.getReg(0x243F) & 0x000F)+8
+		KsToScale = (self.GetReg(0x243F) & 0x000F)+8
 		KsTo1 = KsTo1/float(pow(2,KsToScale))
 		KsTo2 = KsTo2/float(pow(2,KsToScale))
 		KsTo3 = KsTo3/float(pow(2,KsToScale))
 		KsTo4 = KsTo4/float(pow(2,KsToScale))
 		return KsTo1, KsTo2, KsTo3, KsTo4
 		
-	def getCorners(self):
-		EE = self.getReg(0x243F)
+	def GetCorners(self):
+		EE = self.GetReg(0x243F)
 		step = ((EE & 0x3000)>>12)*10
 		CT3 = ((EE & 0x00f0)>>4)*step
 		CT4 = ((EE & 0x0f00)>>8)*(step+CT3)
 		return step, CT3, CT4
 		
-	def getPixData(self,i,j):
-		Offsetavg = self.getReg(0x2411)
+	def GetPixData(self,i,j):
+		Offsetavg = self.GetReg(0x2411)
 		if Offsetavg > 32676:
 			Offsetavg = Offsetavg-65536
 
-		scaleVal = self.getReg(0x2410)
+		scaleVal = self.GetReg(0x2410)
 		OCCscaleRow = (scaleVal&0x0f00)/256
 		OCCscaleCol = (scaleVal&0x00F0)/16
 		OCCscaleRem = (scaleVal&0x000F)
@@ -157,16 +173,16 @@ class grove_mxl90640:
 		colMask = 0xF<<(4*((j-1)%4))
 
 		OffsetPixAdd = 0x243F+((i-1)*32)+j
-		OffsetPixVal = self.getReg(OffsetPixAdd)
+		OffsetPixVal = self.GetReg(OffsetPixAdd)
 		OffsetPix = (OffsetPixVal & 0xFC00)/1024
 		if OffsetPix >31:
 			OffsetPix = OffsetPix - 64
 
-		OCCRow = (self.getReg(rowAdd) & rowMask)>>(4*((i-1)%4))
+		OCCRow = (self.GetReg(rowAdd) & rowMask)>>(4*((i-1)%4))
 		if OCCRow >7:
 			OCCRow = OCCRow -16
 
-		OCCCol = (self.getReg(colAdd) & colMask)>>(4*((j-1)%4))
+		OCCCol = (self.GetReg(colAdd) & colMask)>>(4*((j-1)%4))
 		if OCCCol > 7:
 			OCCCol = OCCCol -16
 
@@ -183,60 +199,60 @@ class grove_mxl90640:
 		KtaAvAddr = 0x2436 + (colEven)
 		KtaAvMask = 0xFF00 >> (8*rowEven)
 		
-		KtaRC = (self.getReg(KtaAvAddr) & KtaAvMask) >> 8* rowOdd
+		KtaRC = (self.GetReg(KtaAvAddr) & KtaAvMask) >> 8* rowOdd
 		if KtaRC > 127:
 			KtaRC = KtaAvRC - 256
 		
-		KtaScale1 = ((self.getReg(0x2438) & 0x00F0) >>4)+8
-		KtaScale2 = (self.getReg(0x2438) & 0x000F)
+		KtaScale1 = ((self.GetReg(0x2438) & 0x00F0) >>4)+8
+		KtaScale2 = (self.GetReg(0x2438) & 0x000F)
 
 		Kta = (KtaRC+(KtaEE<<KtaScale2))/float(pow(2,KtaScale1))
 		
 		shiftNum = (rowOdd*4)+(colOdd*8)
 		KvMask = 0x000F << shiftNum
-		Kv = (self.getReg(0x2434) & KvMask) >> shiftNum
+		Kv = (self.GetReg(0x2434) & KvMask) >> shiftNum
 		if Kv > 7:
 			Kv = Kv-16
 		
-		KvScale = (self.getReg(0x2438) & 0x0F00)>>8
+		KvScale = (self.GetReg(0x2438) & 0x0F00)>>8
 		
 		Kv = Kv/float(KvScale)
 		
 		RAMaddr = 0x400+((i-1)*32)+ j-1
-		RAM = self.getReg(RAMaddr)
+		RAM = self.GetReg(RAMaddr)
 		if RAM > 32767:
 			RAM = RAM - 65536
 		pixGain = RAM*self.gain
 		pixOs = pixGain - pixOffset*(1+Kta*(self.Ta - self.Ta0)*(1+Kv*(self.VDD - self.VDD0)))
 		return pixOs
 
-	def getCompensatedPixData(self,i,j):
-		pixOs = self.getPixData(i,j)
+	def GetCompensatedPixData(self,i,j):
+		pixOs = self.GetPixData(i,j)
 		Kgain = ((self.gain -1)/10)+1
 		
-		pixGainCPSP0 = self.getReg(0x0708)
+		pixGainCPSP0 = self.GetReg(0x0708)
 		if pixGainCPSP0 > 32767:
 			pixGainCPSP0 = pixGainCPSP0 - 65482
 		
-		pixGainCPSP1 = self.getReg(0x0728)
+		pixGainCPSP1 = self.GetReg(0x0728)
 		if pixGainCPSP1 > 32767:
 			pixGainCPSP1 = pixGainCPSP1 - 65482
 		
 		pixGainCPSP0 = pixGainCPSP0*Kgain
 		pixGainCPSP1 = pixGainCPSP1*Kgain
 		
-		OffCPSP0 = self.getReg(0x243A) & 0x03FF
+		OffCPSP0 = self.GetReg(0x243A) & 0x03FF
 		if OffCPSP0 > 511:
 			OffCPSP0 = OffCPSP0-1024
 		
-		OffCPSP1d = (self.getReg(0x243A) &0xFC00)>>10
+		OffCPSP1d = (self.GetReg(0x243A) &0xFC00)>>10
 		if OffCPSP1d > 31:
 			OffCPSP1d = OffCPSP1d-64
 		
 		OffCPSP1 = OffCPSP1d + OffCPSP0
 		
-		KvtaCPEEVal = self.getReg(0x243B)
-		KvtaScaleVal = self.getReg(0x2438)
+		KvtaCPEEVal = self.GetReg(0x243B)
+		KvtaScaleVal = self.GetReg(0x2438)
 		
 		KtaScale1 = ((KvtaScaleVal & 0x00F0)>>4)+8
 		KvScale = (KvtaScaleVal & 0x0F00)>>8
@@ -255,33 +271,33 @@ class grove_mxl90640:
 		pixOSCPSP1 = pixGainCPSP1 - OffCPSP1*b
 		
 		if self.chessNotIL:
-			pattern = self.patternChess(i,j)
+			pattern = self.PatternChess(i,j)
 		else:
-			pattern = self.patternChess(i,j)
+			pattern = self.PatternChess(i,j)
 		
 		VIREmcomp = pixOs//self.emissivity
 		VIRcomp = VIREmcomp - self.TGC*((1-pattern)*pixOSCPSP0 + pattern*pixOSCPSP1)
 		###########TESTED TO HERE
 		
-		reg2439val = self.getReg(0x2439)
-		reg2420val = self.getReg(0x2420)
+		reg2439val = self.GetReg(0x2439)
+		reg2420val = self.GetReg(0x2420)
 		alphaScaleCP = ((reg2420val & 0xF000)>>12) + 27
 		CPP1P0ratio = (reg2439val & 0xFC00)>>10
 		if CPP1P0ratio >31:
 			CPP1P0ratio = CPP1P0ratio -64
 		
-		alphaRef = self.getReg(0x2421)
+		alphaRef = self.GetReg(0x2421)
 		alphaScale = ((reg2420val & 0xF000)>>12) + 30
 		rowAdd = 0x2422 + int((i-1)/4)
 		colAdd = 0x2428 + int((j-1)/4)
 		rowMask = 0xF<<(4*((i-1)%4))
 		colMask = 0xF<<(4*((j-1)%4))
 
-		ACCRow = (self.getReg(rowAdd) & rowMask)>>(4*((i-1)%4))
+		ACCRow = (self.GetReg(rowAdd) & rowMask)>>(4*((i-1)%4))
 		if ACCRow >7:
 			ACCRow = ACCRow -16
 
-		ACCCol = (self.getReg(colAdd) & colMask)>>(4*((j-1)%4))
+		ACCCol = (self.GetReg(colAdd) & colMask)>>(4*((j-1)%4))
 		if ACCCol > 7:
 			ACCCol = ACCCol -16
 		
@@ -289,7 +305,7 @@ class grove_mxl90640:
 		ACCScaleCol = (reg2420val & 0x00F0)>>4
 		ACCScaleRem = (reg2420val & 0x000F)
 		
-		alphaPixel = (self.getReg(0x241f+self.pixnum(i,j))&0x03f0)>>4
+		alphaPixel = (self.GetReg(0x241f+self.pixnum(i,j))&0x03f0)>>4
 		
 		alpha = (alphaRef+(ACCRow<<ACCScaleRow)+(ACCCol<<ACCScaleCol)+(alphaPixel<<ACCScaleRem))/float(pow(2,alphaScale))
 		
