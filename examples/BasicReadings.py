@@ -1,12 +1,16 @@
 import seeed_mlx90640
 import time
 def main():
-    sensor = seeed_mlx90640.grove_mxl90640()
+    mlx = seeed_mlx90640.grove_mxl90640()
+    frame = [0] * 768
     while True:
-        Pixel = [0]*801
-        for i in range(0,801):
-            Pixel[i] = sensor.GetCompensatedPixData(i//32,i%32)
-            print(Pixel[i])
-
+        start = time.time()
+        try:
+            mlx.getFrame(frame)
+        except ValueError:
+            continue
+        print(frame)
+        end = time.time()
+        print("The time: %f"%(end - start))
 if __name__  == '__main__':
     main()

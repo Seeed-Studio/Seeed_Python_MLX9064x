@@ -9,7 +9,9 @@ This driver depends on:
 
 This is easy to install with the following command.
  ```
+
 curl -sL https://github.com/Seeed-Studio/grove.py/raw/master/install.sh | sudo bash -s -
+
  ```
  
 ## Installing from PyPI
@@ -17,21 +19,34 @@ curl -sL https://github.com/Seeed-Studio/grove.py/raw/master/install.sh | sudo b
 On supported GNU/Linux systems like the Raspberry Pi, you can install the driver locally from PyPI. To install for current user:
 
 ```
+
 pip3 install seeed-python-mlx90640
+
 ```
 
 To install system-wide (this may be required in some cases):
 
 ```
+
 sudo pip3 install seeed-python-mlx90640
+
+```
+
+if you want to update the driver locally from PyPI. you can use:
+
+```
+pip3 install --upgrade seeed-python-mlx90640
 ```
 
 ## Usage Notes
 
 First, Check the corresponding i2c number of the board:
+
 ```
+
 (.env) pi@raspberrypi:~ $ ls /dev/i2c*
 /dev/i2c-1
+
 ```
 
 Check if the i2c device works properly， 0x33 is the MLX90640 i2c address.
@@ -56,13 +71,13 @@ Initialize the sersor object and config the sersor refresh rate.
 
 ```python
 import seeed_mlx90640
-sensor = seeed_mlx90640.grove_mxl90640()
-sensor.SetRefreshRate(0x04)
+mlx = seeed_mlx90640.grove_mxl90640()
+mlx.refresh_rate = seeed_mlx90640.RefreshRate.REFRESH_8_HZ  # The fastest for raspberry 4 
 # 0x00 0.5HZ
 # 0x01 1HZ
 # 0x02 2HZ
-# 0x03 4HZ(recommend for raspberry)
-# 0x04 8HZ
+# 0x03 4HZ
+# 0x04 8HZ(recommend for raspberry)
 # 0x05 16HZ
 # 0x06 32HZ
 # 0x07 64HZ
@@ -73,27 +88,18 @@ sensor.SetRefreshRate(0x04)
 To read from the sensor:
 
 ```python
-Pixel = [0]*801
-for i in range(0,801):
-     Pixel[i] = sensor.getCompensatedPixData(i//32,i%32)
-del Pixel[0:33]
-print(len(Pixel))  #24x32 pixel
-print(Pixel)
+     try:
+          mlx.getFrame(frame)
+     except ValueError:
+          continue
 ```
 
-If you're just using the MLX90640 on iic.You can add content that below to the config.txt.
-
-```bash
-dtparam=i2c_arm=on,i2c_arm_baudrate=1000000
-```  
-
-This will give you a framerate of - at most - 32FPS.
-
-and If you have other iic device ,maybe you can add content that below to the config.txt to get the fastest rate recommended for compatibility
+maybe you can add content that below to the config.txt to get the fastest rate recommended for compatibility
 
 ```bash
 dtparam=i2c_arm=on,i2c_arm_baudrate=400000
 ```  
+
 This will give you a framerate of - at most - 8FPS.
 
 ## Contributing
