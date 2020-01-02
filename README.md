@@ -73,14 +73,14 @@ Initialize the sersor object and config the sersor refresh rate.
 import seeed_mlx90640
 mlx = seeed_mlx90640.grove_mxl90640()
 mlx.refresh_rate = seeed_mlx90640.RefreshRate.REFRESH_8_HZ  # The fastest for raspberry 4 
-# 0x00 0.5HZ
-# 0x01 1HZ
-# 0x02 2HZ
-# 0x03 4HZ
-# 0x04 8HZ(recommend for raspberry)
-# 0x05 16HZ
-# 0x06 32HZ
-# 0x07 64HZ
+# REFRESH_0_5_HZ = 0b000  # 0.5Hz
+# REFRESH_1_HZ = 0b001  # 1Hz
+# REFRESH_2_HZ = 0b010  # 2Hz
+# REFRESH_4_HZ = 0b011  # 4Hz
+# REFRESH_8_HZ = 0b100  # 8Hz
+# REFRESH_16_HZ = 0b101  # 16Hz
+# REFRESH_32_HZ = 0b110  # 32Hz
+# REFRESH_64_HZ = 0b111  # 64Hz
 ```
 
 ## Reading from the Sensor
