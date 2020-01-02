@@ -89,6 +89,7 @@ To read from the sensor:
 
 ```python
      try:
+          frame = [0]*768
           mlx.getFrame(frame)
      except ValueError:
           continue
