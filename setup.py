@@ -19,13 +19,13 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
 
 setup(
     name='seeed-python-mlx90640',
-    version="1.0.0",
+    version="1.1.0",
     description='Python library for the Grove - Thermal Imaging Camera(MLX90640) is an thermal sensor. ',
     long_description=long_description,
     long_description_content_type='text/markdown',
 
     # The project's main homepage.
-    url='https://github.com/hansonCc/Seeed_Python_MLX90640',
+    url='https://github.com/Seeed-Studio/Seeed_Python_MLX90640',
 
     # Author details
     author='Hanson',
