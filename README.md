@@ -1,41 +1,37 @@
-# seeed MLX90640
+# seeed MLX9064x
 
-The MLX90640 is a fully calibrated 32x24 pixels IR array in an industry standard 4-lead TO39 package with digital interface The MLX90640 contains 768 FIR pixels. An ambient sensor is integrated to measure the ambient temperature of the chip and supply sensor to measure the VDD. The outputs of all sensors IR, Ta and VDD are stored in internal RAM and are accessible through I2C.
+The MLX9064x is a fully calibrated 32x24(12 x 16) pixels IR array in an industry standard 4-lead TO39 package with digital interface The MLX90640 contains 768 FIR pixels and The MLX90641 contains 192 FIR pixels. An ambient sensor is integrated to measure the ambient temperature of the chip and supply sensor to measure the VDD. The outputs of all sensors IR, Ta and VDD are stored in internal RAM and are accessible through I2C.
 
 # Dependencies
 
 This driver depends on:
+
 - [***grove.py***](https://github.com/Seeed-Studio/grove.py)
 
 This is easy to install with the following command.
- ```
 
-curl -sL https://github.com/Seeed-Studio/grove.py/raw/master/install.sh | sudo bash -s -
-
- ```
+```
+pip3 install Seeed-grove.py
+```
  
 ## Installing from PyPI
 
 On supported GNU/Linux systems like the Raspberry Pi, you can install the driver locally from PyPI. To install for current user:
 
 ```
-
-pip3 install seeed-python-mlx90640
-
+pip3 install seeed-python-mlx9064x
 ```
 
 To install system-wide (this may be required in some cases):
 
 ```
-
-sudo pip3 install seeed-python-mlx90640
-
+sudo pip3 install seeed-python-mlx9064x
 ```
 
 if you want to update the driver locally from PyPI. you can use:
 
 ```
-pip3 install --upgrade seeed-python-mlx90640
+pip3 install --upgrade seeed-python-mlx9064x
 ```
 
 ## Usage Notes
@@ -43,15 +39,13 @@ pip3 install --upgrade seeed-python-mlx90640
 First, Check the corresponding i2c number of the board:
 
 ```
-
-(.env) pi@raspberrypi:~ $ ls /dev/i2c*
+pi@raspberrypi:~ $ ls /dev/i2c*
 /dev/i2c-1
-
 ```
 
-Check if the i2c device works properly， 0x33 is the MLX90640 i2c address.
-```
+Check if the i2c device works properly， 0x33 is the MLX9064x i2c address.
 
+```
 pi@raspberrypi:~/Seeed_Python_SGP30 $ i2cdetect -y -r 1
      0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
 00:          -- -- -- -- -- -- -- -- -- -- -- -- --
@@ -62,7 +56,6 @@ pi@raspberrypi:~/Seeed_Python_SGP30 $ i2cdetect -y -r 1
 50: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 60: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 70: -- -- -- -- -- -- -- --
-
 ```
 
 ## initialize the sersor object:
@@ -70,9 +63,10 @@ pi@raspberrypi:~/Seeed_Python_SGP30 $ i2cdetect -y -r 1
 Initialize the sersor object and config the sersor refresh rate.
 
 ```python
-import seeed_mlx90640
-mlx = seeed_mlx90640.grove_mxl90640()
-mlx.refresh_rate = seeed_mlx90640.RefreshRate.REFRESH_8_HZ  # The fastest for raspberry 4 
+import seeed_mlx9064x
+mlx = seeed_mlx9064x.grove_mxl90640()
+#mlx = seeed_mlx9064x.grove_mxl90641()
+mlx.refresh_rate = seeed_mlx9064x.RefreshRate.REFRESH_8_HZ  # The fastest for raspberry 4 
 # REFRESH_0_5_HZ = 0b000  # 0.5Hz
 # REFRESH_1_HZ = 0b001  # 1Hz
 # REFRESH_2_HZ = 0b010  # 2Hz
@@ -89,7 +83,9 @@ To read from the sensor:
 
 ```python
      try:
+     
           frame = [0]*768
+          #frame = [0]*192
           mlx.getFrame(frame)
      except ValueError:
           continue

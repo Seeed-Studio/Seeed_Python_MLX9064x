@@ -838,6 +838,7 @@ class grove_mxl90641(MLX9064X_I2C_Driver):
         reciver.append(statusRegister[0] & 0x0001)
         del reciver[0]
         return reciver
+
     def _GetTa(self, frameData):
         vdd = self._GetVdd(frameData)
         ptat = frameData[224]
@@ -1178,7 +1179,6 @@ class grove_mxl90641(MLX9064X_I2C_Driver):
                 tempOffset = eeData[640 + Index] - 2048
             self.offset[1][Index] = tempOffset * scaleOffset + offsetRef
 
-
     def _ExtractKtaPixelParameters(self): # pylint: disable=too-many-locals
         # extract KtaPixel
         ktaTemp = [0] * 192
@@ -1245,7 +1245,6 @@ class grove_mxl90641(MLX9064X_I2C_Driver):
                 self.brokenPixels[brokenPixCnt] = pixCnt
                 brokenPixCnt += 1
             pixCnt += 1 
-
         if brokenPixCnt > 2:
             raise RuntimeError("More than 3 broken pixels")
         print("Found %d broken pixels" % (brokenPixCnt))
