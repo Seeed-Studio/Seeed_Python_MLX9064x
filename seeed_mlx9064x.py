@@ -2,6 +2,7 @@ import struct
 import math
 import time
 from grove.i2c import Bus
+
 # This relies on the driver written by siddacious and can be found at:
 # https://github.com/adafruit/Adafruit_CircuitPython_MLX90640
 
@@ -723,7 +724,6 @@ class grove_mxl90641(MLX9064X_I2C_Driver):
     tgc = 0
     KsTa = 0
     resolutionEE = 0
-    calibrationModeEE = 0
     ksTo = [0] * 8
     ct = [0] * 8
     alpha = [0] * 192
@@ -737,7 +737,6 @@ class grove_mxl90641(MLX9064X_I2C_Driver):
     cpOffset = 0
     ilChessC = [0] * 3
     brokenPixels = [0xFFFF] * 5
-    outlierPixels = [0xFFFF] * 5
     cpKta = 0
     cpKv = 0
     emissivityEE = 0
@@ -751,7 +750,7 @@ class grove_mxl90641(MLX9064X_I2C_Driver):
 
     @property
     def refresh_rate(self):
-        """ How fast the MLX90640 will spit out data. Start at lowest speed in
+        """ How fast the MLX90641 will spit out data. Start at lowest speed in
         RefreshRate and then slowly increase I2C clock rate and rate until you
         max out. The sensor does not like it if the I2C host cannot 'keep up'!"""
         controlRegister = [0]
@@ -768,8 +767,8 @@ class grove_mxl90641(MLX9064X_I2C_Driver):
 
     def getFrame(self, framebuf):
         """ Request both 'halves' of a frame from the sensor, merge them
-        and calculate the temperature in C for each of 32x24 pixels. Placed
-        into the 768-element array passed in! """
+        and calculate the temperature in C for each of 12x16 pixels. Placed
+        into the 192-element array passed in! """
         emissivity = 0.95
         tr = 23.15
         mlx90641Frame = [0] * 242
