@@ -7,7 +7,8 @@ def main():
         frame = [0] * 192
     elif CHIP_TYPE == 'MLX90640':
         mlx = seeed_mlx9064x.grove_mxl90640()
-        frame = [0] * 768        
+        frame = [0] * 768       
+    time.sleep(1) 
     while True:
         start = time.time()
         try:

@@ -19,7 +19,7 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
 
 setup(
     name='seeed-python-mlx9064x',
-    version="1.1.1",
+    version="1.1.2",
     description='Python library for the Grove - Thermal Imaging Camera(MLX9064x) is an thermal sensor. ',
     long_description=long_description,
     long_description_content_type='text/markdown',
@@ -31,7 +31,7 @@ setup(
     author='Hanson',
     author_email='595355940@qq.com',
     
-    install_requires=['grove.py'],
+    install_requires=['Seeed-grove.py'],
     
     # Choose your license
     license='MIT',
