@@ -1,9 +1,14 @@
-import seeed_mlx90640
+import seeed_mlx9064x
 import time
+CHIP_TYPE = 'MLX90641'
 def main():
-    mlx = seeed_mlx90640.grove_mxl90640()
-    mlx.refresh_rate = seeed_mlx90640.RefreshRate.REFRESH_8_HZ  # The fastest for raspberry 4 
-    frame = [0] * 768
+    if CHIP_TYPE == 'MLX90641':
+        mlx = seeed_mlx9064x.grove_mxl90641()
+        frame = [0] * 192
+    elif CHIP_TYPE == 'MLX90640':
+        mlx = seeed_mlx9064x.grove_mxl90640()
+        frame = [0] * 768  
+    mlx.refresh_rate = seeed_mlx9064x.RefreshRate.REFRESH_8_HZ  # The fastest for raspberry 4 
     while True:
         start = time.time()
         try:
