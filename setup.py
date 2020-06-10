@@ -18,14 +18,14 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
 setup(
-    name='seeed-python-mlx90640',
-    version="1.1.0",
-    description='Python library for the Grove - Thermal Imaging Camera(MLX90640) is an thermal sensor. ',
+    name='seeed-python-mlx9064x',
+    version="1.1.1",
+    description='Python library for the Grove - Thermal Imaging Camera(MLX9064x) is an thermal sensor. ',
     long_description=long_description,
     long_description_content_type='text/markdown',
 
     # The project's main homepage.
-    url='https://github.com/Seeed-Studio/Seeed_Python_MLX90640',
+    url='https://github.com/Seeed-Studio/Seeed_Python_MLX9064x',
 
     # Author details
     author='Hanson',
@@ -49,10 +49,10 @@ setup(
     ],
 
     # What does your project relate to?
-    keywords='seeed grove mlx90640 thermal Camera sensor i2c hardware',
+    keywords='seeed grove mlx9064x thermal Camera sensor i2c hardware',
 
     # You can just specify the packages manually here if your project is
     # simple. Or you can use find_packages().
-    py_modules=['seeed_mlx90640'],
+    py_modules=['seeed_mlx9064x'],
 )
 
