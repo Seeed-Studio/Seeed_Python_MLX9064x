@@ -1020,22 +1020,22 @@ class grove_mxl90641(MLX9064X_I2C_Driver):
         self._ExtractCPParameters()
         self._ExtractDeviatingPixels()
         # debug output
-        print('-'*40)
-        print("kVdd = %d, vdd25 = %d" % (self.kVdd, self.vdd25))
-        print("KvPTAT = %f, KtPTAT = %f, vPTAT25 = %d, alphaPTAT = %f" %
-             (self.KvPTAT, self.KtPTAT, self.vPTAT25, self.alphaPTAT))
-        print("Gain = %d, Tgc = %f, Resolution = %d" % (self.gainEE, self.tgc, self.resolutionEE))
-        print("KsTa = %f, ksTo = %s, ct = %s" % (self.KsTa, self.ksTo, self.ct))
-        print("cpAlpha:", self.cpAlpha, "cpOffset:", self.cpOffset)
-        print("alpha: ", self.alpha)
-        print("alphascale: ", self.alphaScale)
-        print("offset: ", self.offset)
-        print("kta:", self.kta)
-        print("ktaScale:", self.ktaScale)
-        print("kv:", self.kv)
-        print("kvScale:", self.kvScale)
-        print(eeData)
-        print('-'*40)
+        # print('-'*40)
+        # print("kVdd = %d, vdd25 = %d" % (self.kVdd, self.vdd25))
+        # print("KvPTAT = %f, KtPTAT = %f, vPTAT25 = %d, alphaPTAT = %f" %
+             # (self.KvPTAT, self.KtPTAT, self.vPTAT25, self.alphaPTAT))
+        # print("Gain = %d, Tgc = %f, Resolution = %d" % (self.gainEE, self.tgc, self.resolutionEE))
+        # print("KsTa = %f, ksTo = %s, ct = %s" % (self.KsTa, self.ksTo, self.ct))
+        # print("cpAlpha:", self.cpAlpha, "cpOffset:", self.cpOffset)
+        # print("alpha: ", self.alpha)
+        # print("alphascale: ", self.alphaScale)
+        # print("offset: ", self.offset)
+        # print("kta:", self.kta)
+        # print("ktaScale:", self.ktaScale)
+        # print("kv:", self.kv)
+        # print("kvScale:", self.kvScale)
+        # print(eeData)
+        # print('-'*40)
     def _ExtractVDDParameters(self):
         # extract VDD
         self.kVdd = eeData[39]
