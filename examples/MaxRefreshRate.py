@@ -12,10 +12,7 @@ def main():
     time.sleep(1)
     while True:
         start = time.time()
-        try:
-            mlx.getFrame(frame)
-        except ValueError:
-            continue
+        mlx.getFrame(frame)
         print(frame)
         end = time.time()
         print("The time: %f"%(end - start))

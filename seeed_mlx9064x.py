@@ -10,7 +10,7 @@ eeData = [0] * 832
 I2C_READ_LEN = 2048
 SCALEALPHA = 0.000001
 MLX90640_DEVICEID1 = 0x2407
-OPENAIR_TA_SHIFT = 8
+OPENAIR_TA_SHIFT = 12
 
 class RefreshRate: 
     """ Enum-like class for MLX90640's refresh rate """
@@ -722,8 +722,8 @@ class grove_mxl90641(MLX9064X_I2C_Driver):
     alphaPTAT = 0
     gainEE = 0
     tgc = 0
-    KsTa = 0
     resolutionEE = 0
+    KsTa = 0
     ksTo = [0] * 8
     ct = [0] * 8
     alpha = [0] * 192
@@ -735,12 +735,10 @@ class grove_mxl90641(MLX9064X_I2C_Driver):
     kvScale = 0
     cpAlpha = 0
     cpOffset = 0
-    ilChessC = [0] * 3
     brokenPixels = [0xFFFF] * 5
     cpKta = 0
     cpKv = 0
     emissivityEE = 0
-
     def __init__(self,address=0x33):
         super(grove_mxl90641, self).__init__(address)
         self.refresh_rate = RefreshRate.REFRESH_0_5_HZ 
@@ -1021,13 +1019,29 @@ class grove_mxl90641(MLX9064X_I2C_Driver):
         self._ExtractKvPixelParameters()
         self._ExtractCPParameters()
         self._ExtractDeviatingPixels()
-
+        # debug output
+        print('-'*40)
+        print("kVdd = %d, vdd25 = %d" % (self.kVdd, self.vdd25))
+        print("KvPTAT = %f, KtPTAT = %f, vPTAT25 = %d, alphaPTAT = %f" %
+             (self.KvPTAT, self.KtPTAT, self.vPTAT25, self.alphaPTAT))
+        print("Gain = %d, Tgc = %f, Resolution = %d" % (self.gainEE, self.tgc, self.resolutionEE))
+        print("KsTa = %f, ksTo = %s, ct = %s" % (self.KsTa, self.ksTo, self.ct))
+        print("cpAlpha:", self.cpAlpha, "cpOffset:", self.cpOffset)
+        print("alpha: ", self.alpha)
+        print("alphascale: ", self.alphaScale)
+        print("offset: ", self.offset)
+        print("kta:", self.kta)
+        print("ktaScale:", self.ktaScale)
+        print("kv:", self.kv)
+        print("kvScale:", self.kvScale)
+        print(eeData)
+        print('-'*40)
     def _ExtractVDDParameters(self):
         # extract VDD
         self.kVdd = eeData[39]
         if self.kVdd > 1023:
             self.kVdd = self.kVdd - 2048
-        self.KVdd = 32 * self.kVdd
+        self.kVdd = 32 * self.kVdd
 
         self.vdd25 = eeData[38]
         if self.vdd25 > 1023:
@@ -1215,13 +1229,15 @@ class grove_mxl90641(MLX9064X_I2C_Driver):
         kvScale1 = eeData[24] >> 5
         kvScale2 = eeData[24] & 0x001F
         for i in range(192):
-            tempKv = (eeData[448 + i] >> 5)
+            tempKv = (eeData[448 + i] & 0x001F)
             if tempKv > 15:
                 tempKv = tempKv - 32
             kvTemp[i] = tempKv * math.pow(2,kvScale2)
             kvTemp[i] += kvAvg
             kvTemp[i] /= math.pow(2,kvScale1)            
-        temp = max(map(abs,kvTemp)) 
+        temp = abs(kvTemp[0])
+        for kv in kvTemp:
+            temp = max(temp, abs(kv))
         kvScale1 = 0
         while temp < 64 :
             temp = temp * 2
