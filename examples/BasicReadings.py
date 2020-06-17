@@ -15,7 +15,7 @@ def main():
             mlx.getFrame(frame)
         except ValueError:
             continue
-        # print(frame)
+        print(frame)
         end = time.time()
         print("The time: %f"%(end - start))
 if __name__  == '__main__':
