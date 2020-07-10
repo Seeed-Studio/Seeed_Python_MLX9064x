@@ -83,7 +83,7 @@ class grove_mxl90640(MLX9064X_I2C_Driver):
     cpKv = 0
 
     def __init__(self,address=0x33):
-        super(grove_mxl90641, self).__init__(address)
+        super(grove_mxl90640, self).__init__(address)
         self.refresh_rate = RefreshRate.REFRESH_0_5_HZ 
         self.I2CReadWords(0x2400, eeData)
         # print(eeData)
@@ -702,7 +702,7 @@ class grove_mxl90640(MLX9064X_I2C_Driver):
                 self.outlierPixels[outlierPixCnt] = pixCnt
                 outlierPixCnt += 1
             pixCnt += 1 
-
+ 
         if brokenPixCnt > 4:
             raise RuntimeError("More than 4 broken pixels")
         if outlierPixCnt > 4:
