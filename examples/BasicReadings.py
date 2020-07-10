@@ -1,6 +1,6 @@
 import seeed_mlx9064x
 import time
-CHIP_TYPE = 'MLX90641'
+CHIP_TYPE = 'MLX90640'
 def main():
     if CHIP_TYPE == 'MLX90641':
         mlx = seeed_mlx9064x.grove_mxl90641()
@@ -15,7 +15,7 @@ def main():
             mlx.getFrame(frame)
         except ValueError:
             continue
-#        print(frame)
+        print(frame)
         end = time.time()
         print("The time: %f"%(end - start))
 if __name__  == '__main__':
