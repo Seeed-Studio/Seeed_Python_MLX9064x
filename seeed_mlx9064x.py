@@ -318,23 +318,23 @@ class grove_mxl90640(MLX9064X_I2C_Driver):
         self._ExtractDeviatingPixels()
 
         # debug output
-        #print('-'*40)
-        #print("kVdd = %d, vdd25 = %d" % (self.kVdd, self.vdd25))
-        #print("KvPTAT = %f, KtPTAT = %f, vPTAT25 = %d, alphaPTAT = %f" %
-        #      (self.KvPTAT, self.KtPTAT, self.vPTAT25, self.alphaPTAT))
-        #print("Gain = %d, Tgc = %f, Resolution = %d" % (self.gainEE, self.tgc, self.resolutionEE))
-        #print("KsTa = %f, ksTo = %s, ct = %s" % (self.KsTa, self.ksTo, self.ct))
-        #print("cpAlpha:", self.cpAlpha, "cpOffset:", self.cpOffset)
-        #print("alpha: ", self.alpha)
-        #print("alphascale: ", self.alphaScale)
-        #print("offset: ", self.offset)
-        #print("kta:", self.kta)
-        #print("ktaScale:", self.ktaScale)
-        #print("kv:", self.kv)
-        #print("kvScale:", self.kvScale)
-        #print("calibrationModeEE:", self.calibrationModeEE)
-        #print("ilChessC:", self.ilChessC)
-        #print('-'*40)
+        # print('-'*40)
+        # print("kVdd = %d, vdd25 = %d" % (self.kVdd, self.vdd25))
+        # print("KvPTAT = %f, KtPTAT = %f, vPTAT25 = %d, alphaPTAT = %f" %
+              # (self.KvPTAT, self.KtPTAT, self.vPTAT25, self.alphaPTAT))
+        # print("Gain = %d, Tgc = %f, Resolution = %d" % (self.gainEE, self.tgc, self.resolutionEE))
+        # print("KsTa = %f, ksTo = %s, ct = %s" % (self.KsTa, self.ksTo, self.ct))
+        # print("cpAlpha:", self.cpAlpha, "cpOffset:", self.cpOffset)
+        # print("alpha: ", self.alpha)
+        # print("alphascale: ", self.alphaScale)
+        # print("offset: ", self.offset)
+        # print("kta:", self.kta)
+        # print("ktaScale:", self.ktaScale)
+        # print("kv:", self.kv)
+        # print("kvScale:", self.kvScale)
+        # print("calibrationModeEE:", self.calibrationModeEE)
+        # print("ilChessC:", self.ilChessC)
+        # print('-'*40)
 
     def _ExtractVDDParameters(self):
         # extract VDD
@@ -1123,11 +1123,10 @@ class grove_mxl90641(MLX9064X_I2C_Driver):
         if self.cpOffset > 32767:
             self.cpOffset -= 65536
 
-        alphaScale = eeData[46]
         self.cpAlpha = eeData[45]
         if self.cpAlpha > 1023 :
             self.cpAlpha = self.cpAlpha - 2048
-        self.cpAlpha /= math.pow(2,alphaScale)
+        self.cpAlpha //= math.pow(2,self.cpAlpha)
 
         self.cpKta = eeData[49] & 0x001F
         if self.cpKta > 31:
